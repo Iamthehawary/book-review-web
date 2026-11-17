@@ -1,20 +1,14 @@
-import { useEffect, useState } from "react";
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { useEffect, useState } from 'react';
+import { getBooks } from './api/books';
+import { getErrorMessage } from './api/errors';
 
 function App() {
-  const [status, setStatus] = useState("Checking the API...");
+  const [status, setStatus] = useState('Checking the API...');
 
   useEffect(() => {
-    fetch(`${API_URL}/api/books`)
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
-      .then((books: unknown[]) =>
-        setStatus(`API reachable. Books in the database: ${books.length}`),
-      )
-      .catch((err) => setStatus(`API not reachable: ${err.message}`));
+    getBooks()
+      .then((books) => setStatus(`API reachable. Books in the database: ${books.length}`))
+      .catch((error) => setStatus(getErrorMessage(error)));
   }, []);
 
   return (
