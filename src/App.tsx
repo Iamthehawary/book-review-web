@@ -1,23 +1,33 @@
-import { useEffect, useState } from 'react';
-import { getBooks } from './api/books';
-import { getErrorMessage } from './api/errors';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import Layout from './components/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './context/AuthProvider';
+import AddBookPage from './pages/AddBookPage';
+import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import NotFoundPage from './pages/NotFoundPage';
+import RegisterPage from './pages/RegisterPage';
 
 function App() {
-  const [status, setStatus] = useState('Checking the API...');
-
-  useEffect(() => {
-    getBooks()
-      .then((books) => setStatus(`API reachable. Books in the database: ${books.length}`))
-      .catch((error) => setStatus(getErrorMessage(error)));
-  }, []);
-
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-900 text-white">
-      <div className="rounded-xl bg-slate-800 p-8 shadow-lg">
-        <h1 className="text-3xl font-bold">Book Review</h1>
-        <p className="mt-2 text-slate-300">{status}</p>
-      </div>
-    </main>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+
+            {/* Only logged-in users can open the routes inside this group */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/books/new" element={<AddBookPage />} />
+            </Route>
+
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
